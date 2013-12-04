@@ -1,0 +1,37 @@
+strong{
+	background:yellow;
+}
+
+body{
+	font-family: Calibri, 'Gill Sans', 'Arial', 'Trebuchet MS', sans-serif 
+}
+
+th,td{
+	text-align:left;
+}
+
+.center{
+	text-align:center;
+}
+
+table{
+	width: 100%;
+}
+
+.thead th{
+	background: #eee;
+}
+
+.tfoot td{
+	background: #EF9B2D;
+}
+
+.project,
+.project table{
+	page-break-inside: avoid;
+}
+
+.project{
+	margin-bottom: 3em;
+}
+* {overflow: visible;}
