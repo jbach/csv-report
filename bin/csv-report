@@ -29,7 +29,7 @@ var cli = require('../lib/cli'),
 		})
 		.options('e', {
 			alias: 'end',
-			default: moment().endOf('month').format('YYYY-MM-DD'),
+			default: moment().subtract('month', 1).endOf('month').format('YYYY-MM-DD'),
 			describe: 'End of report period'
 		})
 		.options('r', {
@@ -39,8 +39,8 @@ var cli = require('../lib/cli'),
 		})
 		.options('t', {
 			alias: 'template',
-			default: path.resolve(__dirname, '../lib/template'),
-			describe: 'Folder where to look for doT.js template (i.e. report.html and report.css)'
+			default: path.resolve(__dirname, '../lib/template.html'),
+			describe: 'Folder where to look for doT.js template'
 		})
 		.options('l', {
 			alias: 'lang',
