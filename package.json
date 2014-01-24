@@ -1,19 +1,25 @@
 {
 	"name": "csv-report",
+	"description": "Converts time tracking data from .csv to .pdf",
 	"version": "0.1.0",
 	"author": "Jonas Bach <hallo@jonasbach.de>",
-	"description": "converts a csv into activity report",
+	"license": "MIT",
+	"main": "index.js",
 	"bin": {
 		"csv-report": "./bin/csv-report"
 	},
+	"repository": {
+	  "type": "git",
+	  "url": "https://jbach@github.com/jbach/csv-report.git"
+	},
 	"dependencies": {
-		"optimist": "0.2.x",
+		"optimist": "0.6.x",
 		"csv": "0.3.x",
-		"moment": "2.0.x",
-		"underscore": "1.4.x",
+		"moment": "2.5.x",
+		"underscore": "1.5.x",
 		"colors": "0.6.x",
-		"cli-table": "0.2.x",
-		"prompt": "0.2.9",
+		"cli-table": "0.6.x",
+		"prompt": "0.2.x",
 		"tmp": "0.0.x",
 		"dot": "1.0.x",
 		"phantomjs": "1.9.x"
