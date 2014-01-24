@@ -1,513 +1,59 @@
 #!/usr/bin/env node
 
-var path = require('path'),
-	fs = require('fs'),
-	_ = require('underscore'),
-	csv = require('csv'),
-	Table = require('cli-table'),
-	colors = require('colors'),
+var cli = require('../lib/cli'),
+	path = require('path'),
+	optimist = require('optimist'),
 	moment = require('moment'),
-	dot = require('dot'),
-	prompt = require('prompt'),
-	tmp = require('tmp'),
-	phantomjs = require('phantomjs'),
-	childProcess = require('child_process'),
-	moments = {
-		now: moment()
-	},
-	regexpPatterns = {
-		yepNope: /^[ynYN]$/,
-		orderNo: /^[a-zA-Z0-9-_]+$/,
-		findOrderNo: /^(.*)(\(Job[:]? (.+)\))(.*)$/
-	};
-
-/**
- * CLI argument parsing, thanks to Substack's optimist.
- * @type {Object}
- */
-var argv = require('optimist')
-	.usage('Usage: $0 --file [file] --delim [string] --start [string]')
-	
-	.options('f', {
-		alias: 'file',
-		demand: true,
-		describe: 'Input .csv file'
-	})
-	
-	.options('o', {
-		alias: 'out',
-		demand: true,
-		default: path.relative(process.cwd(), __dirname + '/../report.pdf'),
-		describe: 'Output .pdf file'
-	})
-	
-	.options('d', {
-		alias: 'delim',
-		default: ';',
-		describe: 'The delimeter used in the .csv file'
-	})
-	
-	.options('s', {
-		alias: 'start',
-		default: moments.now.subtract('month', 1).startOf('month').format('YYYY-MM-DD'),
-		describe: 'Start of report period'
-	})
-	
-	.options('e', {
-		alias: 'end',
-		default: moments.now.endOf('month').format('YYYY-MM-DD'),
-		describe: 'End of report period'
-	})
-	
-	.options('r', {
-		alias: 'round',
-		default: 15,
-		describe: 'Minutes to round up to. e.g. 21m -> 30m'
-	})
-	
-	.options('t', {
-		alias: 'template',
-		default: __dirname + '/../lib/template',
-		describe: 'Folder where to look for doT.js template (i.e. report.html and report.css)'
-	})
-	
-	.options('l', {
-		alias: 'lang',
-		default: 'de',
-		describe: 'Language setting'
-	})
-
-	.argv;
-
-// (re)set times
-moments.now = moment();
-moments.start = moment(argv.s);
-moments.end = moment(argv.e);
-
-// set language
-moment.lang(argv.l);
-
-// set csv path
-var csvPath = path.relative(process.cwd(), argv.file);
-
-// set round
-argv.r = argv.r * 60;
-
-// set template path
-var templatePath = path.relative(process.cwd(), argv.t + '/report.html');
-var cssPath = path.relative(process.cwd(), argv.t + '/report.css');
-
-// load styles
-var cssStyles = '';
-fs.readFile(cssPath, function read(er, css) {
-	if (er){
-		console.error(er);
-		process.exit(1);
-	}
-	cssStyles = css;
-});
-
-var template;
-
-// read template
-fs.readFile(templatePath, function read(er, tpl) {
-	if (er){
-		console.error(er);
-		process.exit(1);
-	}
-	template = dot.template(tpl);
-});
-
-// configure prompt
-prompt.message = 'Question'.grey;
-prompt.delimiter = ' ';
-
-// tmp settings
-tmp.setGracefulCleanup();
-
-
-//
-// DEFINE FUNCTIONS
-//
-
-// reduce by given timeframe
-var reduceData = function(data, count){
-	console.log('Done.'.grey);
-	console.log();
-	
-	if (count > 0) {
-		// filter by timeframe
-		data = _.filter(data, function(entry){
-			return moments.start.isBefore(entry.Date) && moments.end.isAfter(entry.Date);
+	argv = optimist
+		.usage('Usage: $0 --file <path> [--delim <string>] [--start <string>] [--end <string>] [--round <int>] [--template <path>] [--lang <string>]')
+		.options('f', {
+			alias: 'file',
+			demand: true,
+			describe: 'Input .csv file'
 		})
-
-		// sort by date
-		data = _.sortBy(data, 'Date');
-		
-		var newCount = _.size(data)
-		if (newCount > 0) {
-			console.log(newCount + '/' + count + ' entries lie within ' + argv.s + ' and ' + argv.e);
-			groupByProject(data, newCount);
-		}else{
-			// no entries lie in timeframe
-			console.error(('No entries within ' + argv.s + ' and ' + argv.e).red);
-			process.exit(1);
-		}
-	}else{
-		// no in .csv file
-		console.error(('No entries in file ' + csvPath).red);
-		process.exit(1);
-	}
-};
-
-// group by project
-var groupByProject = function(data, count){
-	data = _.groupBy(data, 'Project');
-	console.log(count + ' entries were split among ' + _.size(data) + ' projects');
-	console.log('');
-	mergeEntries(data);
-};
-
-
-// merge grouped entries (currently by day only. later: merge by month etc.)
-var mergeEntries = function(data){
-	console.log('Merging entries by day...');
-	
-	// for every project…
-	_.each(data, function(entries, projectName, list){
-		// …group entries by day…
-		entries = _.groupBy(entries, 'Date');
-		
-		// …now for each day…
-		list[projectName] = _.map(entries, function(dayEntries, dayGroup){
-				// …merge entries!
-				dayEntries = _.reduce(dayEntries, function(memo, entry){
-					memo.Task.push(entry.Task);
-					memo.Task = _.uniq(memo.Task);
-					
-					// cast duration
-					var duration = entry.Duration.split(':');
-					duration = moment.duration({hours:duration[0],minutes:duration[1],seconds:duration[2]}).asSeconds();
-					// round up by given interval
-					memo.Duration += (Math.ceil(duration / argv.r) * argv.r);
-					
-					return memo;
-				}, {
-					Project:projectName,
-					Date:moment(dayGroup),
-					Duration:0, // seconds
-					Task:[],
-					//Comment:''
-				});
-				return dayEntries;
-		});
-	});
-	
-	prepareForOutput(_.values(data));
-};
-
-
-// process and prepare
-var prepareForOutput = function(data){
-	console.log('Done.'.grey);
-	console.log();
-	console.log('Now lets go through this projects. (We are almost done)')
-	console.log('-------------------------------------------------------'.grey);
-	console.log();
-
-	// todo: remove unwanted fields: _.omit()
-	prompt.start();
-	processTable(data, 0, function(){
-		output(_.without(data, false));
-	});
-	
-};
-
-// preview table, ask for stuff, manipulate, reiterate
-var processTable = function(data, index, cb){
-	if (index === data.length) {
-		cb();
-	}else{
-		var days = data[index];
-		
-		// draw table
-		console.log(('Project ' + (index+1) + '/' + data.length+ ':'));
-		console.log();
-		drawTable(days);
-		
-		// ask for options
-		prompt.get({properties:{
-			include:{
-				required: true,
-				description: 'Include this project/table in PDF?'.yellow + ' (y/n)'.grey,
-				type: ['boolean', 'string'],
-				pattern: regexpPatterns.yepNope,
-				before: function(value) { return value.toLowerCase() === 'y'; }
-			}
-		}}, function (err, result) {
-			console.log();
-			
-			// Include?
-			if (result.include) {
-				console.log((days[0].Project.inverse + ' will be included in PDF').green);
-				console.log();
-				
-				// add order no either automatically or per prompt
-				addOrderNo(days, data, index, cb);
-			}else{
-				console.log((days[0].Project.inverse + ' will not be included in PDF').red);
-				console.log();
-				data[index] = false;
-				
-				// go to next item
-				console.log();
-				processTable(data, index+1, cb);
-			}
-		});
-	}
-};
-
-// ask user to add order number
-var addOrderNo = function(days, data, index, cb){
-	// look for matches
-	var orderNoMatches = regexpPatterns.findOrderNo.exec(days[0].Project);
-	if (orderNoMatches === null) {
-		// ask for order no
-		prompt.get({properties:{
-			orderNo:{
-				required: false,
-				description: 'Do you want to add an order #?'.yellow + ' (order number/empty)'.grey,
-				type: 'string',
-				pattern: regexpPatterns.orderNo
-			}
-		}}, function (err, result) {
-			console.log();
-			
-			if (result.orderNo.length > 0) {
-				console.log(('Order # ' + result.orderNo.toString().inverse + ' will be added to table.').green);
-				console.log();
-				days = addOrderNoToColumn(days, result.orderNo);
-			}
-			
-			// go to next item
-			console.log();
-			processTable(data, index+1, cb);
-		});
-	}else{
-		// use extracted value
-		data = addOrderNoToColumn(days, orderNoMatches[3], orderNoMatches[1] + orderNoMatches[4]);
-		processTable(data, index+1, cb);
-	}
-};
-
-var addOrderNoToColumn = function(days, orderNo, replaceProject){
-	_.each(days, function(element, index, list){
-		element['Order'] = orderNo;
-	});
-	
-	// replace project name
-	if (typeof replaceProject === 'string' && replaceProject.length > 0) {
-		console.log('new title: '+replaceProject);
-		_.each(days, function(element, index, list){
-			element['Project'] = replaceProject;
-		});
-	}
-	return days;
-};
-
-// draw table preview
-var drawTable = function(dayEntries){
-	// store keys to determine columns
-	var keys = _.keys(dayEntries[0]);
-	var colAlignsArray = [];
-	var footerArray = [];
-	
-	// custom settings for certain columns
-	_.each(keys, function(key, index){
-		var align = 'left';
-		var footer = '';
-		
-		// todo: make keywords configurable
-		switch (key) {
-			case 'Duration':
-				align = 'middle';
-			break;
-		
-			case 'Date':
-				align = 'middle';
-			break;
-		}
-		
-		colAlignsArray.push(align);
-		footerArray.push(footer);
-	});
-	
-	// create preview table
-	var table = new Table({
-		head: keys,
-		colAligns: colAlignsArray,
-		style : {
-			'padding-left': 1,
-			'padding-right': 1,
-			'border': ['grey'],
-			'head': ['cyan']
-		}
-	});
-	
-	// push data to table
-	var totalDuration = 0;
-	_.each(dayEntries, function(entry, index, list){
-		var returnEntry = _.values(entry);
-		
-		// format s -> hour
-		totalDuration += entry.Duration;
-		returnEntry[_.indexOf(keys, 'Duration')] = entry.Duration / 3600;
-		
-		// nice date
-		returnEntry[_.indexOf(keys, 'Date')] = entry.Date.format('L');
-		
-		// tasks join
-		returnEntry[_.indexOf(keys, 'Task')] = entry.Task.join(', ');
-		
-		table.push(returnEntry);
-	});
-	
-	// append total
-	footerArray[0] = 'Total'.bold;
-	footerArray[2] = (totalDuration/3600).toString().bold.green;
-	table.push(footerArray);
-	
-	// display head + table
-	console.log(dayEntries[0].Project.inverse + ' ' + (totalDuration/3600).toString().bold.green + ' hours'.grey);
-	console.log(table.toString());
-	console.log();
-};
-
-// render the processed data
-var output = function(data){
-	console.log('-------------------------------------'.grey);
-	console.log();
-	console.log('Thanks!'.green + ' PDF is now being generated...');
-	console.log();
-	
-	// check if template exists
-	fs.stat(templatePath, function (er, stats) {
-		if (er){
-			console.error(er);
-			process.exit(1);
-		}
-		if (!stats.isFile()){
-			console.error((templatePath + " is not a file").red);
-		}
-		
-		// render mustache to HTML
-		renderHtml(templatePath, data);
-	});
-};
-
-var renderHtml = function(templatePath, data){
-	
-	//create temporary file
-	console.log('Creating temp HTML file...');
-	tmp.file({postfix: '.html'}, function (er, tmpHtmlPath, tmpHtmlFd) {
-		if (er){
-			console.error(er);
-			process.exit(1);
-		}
-		fs.close(tmpHtmlFd);
-		console.log('Done.'.grey);
-		console.log();
-		
-		// write html to temp file
-		console.log('Rendering template...');
-		fs.writeFile(tmpHtmlPath, template(data), function (er) {
-			if (er){
-				console.error(er);
-				process.exit(1);
-			}
-			console.log('Done.'.grey);
-			console.log();
-			console.log('Writing to temp HTML file...');
-			
-			// now render PDF
-			renderPdf(tmpHtmlPath);
-		});
-	});
-};
-
-var renderPdf = function(tmpHtmlPath){
-	console.log('Done.'.grey);
-	console.log();
-	
-	// Create tmp file to save PDF to
-	tmp.file({postfix: '.pdf'}, function (er, tmpPdfPath, tmpPdfFd) {
-		if (er){
-			console.error(er);
-			process.exit(1);
-		}
-		console.log('Creating temp PDF file and render using Phantom...');
-		
-		// run phantom
-		childProcess.execFile(phantomjs.path, [
-			path.join(__dirname, '..', 'lib', "phantom-pdf.js"),
-			tmpHtmlPath,
-			tmpPdfPath,
-			cssStyles,
-			//path.join(__dirname, '..', 'lib', 'template', 'report.css'),
-			'A4',
-			'landscape',
-			'1.5cm',
-			500
-		], function(er, stdout, stderr) {
-			if (er){
-				console.error(er);
-				process.exit(1);
-			}
-			console.log('Done.'.grey);
-			console.log();
-			
-			// copy temp pdf file to destination
-			console.log('Copying PDF file to destination...');
-			fs.rename(tmpPdfPath, argv.o, function(er) {
-				if (er){
-					console.error(er);
-					process.exit(1);
-				}
-				console.log('Done.'.grey);
-				console.log();
-				
-				console.log('Resolving...');
-				fs.realpath(argv.o, function(er, path) {
-					if (er){
-						console.error(er);
-						process.exit(1);
-					}
-					console.log('Done.'.grey);
-					console.log();
-					console.log('-------------------------------------------'.grey);
-					console.log(('Created PDF file at ' + path).green.inverse);
-					console.log('Bye Bye'.grey);
-					console.log();
-				})
-			});
-		});
-	});
-};
-
-
-
-
-//
-// START PROCESS
-//
-
-// read csv
-console.log('');
-console.log('Reading data from ' + csvPath+ '...');
-var csvData = csv().from.path(csvPath, {
-	delimiter: argv.d,
-	columns: true
-});
-
-// turn csv to array, then reduce
-csvData.to.array(reduceData);
+		.options('o', {
+			alias: 'out',
+			demand: true,
+			default: path.resolve(__dirname, '../report.pdf'),
+			describe: 'Output .pdf file'
+		})
+		.options('d', {
+			alias: 'delim',
+			default: ';',
+			describe: 'The delimeter used in the .csv file'
+		})
+		.options('s', {
+			alias: 'start',
+			default: moment().subtract('month', 1).startOf('month').format('YYYY-MM-DD'),
+			describe: 'Start of report period'
+		})
+		.options('e', {
+			alias: 'end',
+			default: moment().endOf('month').format('YYYY-MM-DD'),
+			describe: 'End of report period'
+		})
+		.options('r', {
+			alias: 'round',
+			default: 15,
+			describe: 'Minutes to round up to. e.g. 21m -> 30m'
+		})
+		.options('t', {
+			alias: 'template',
+			default: path.resolve(__dirname, '../lib/template'),
+			describe: 'Folder where to look for doT.js template (i.e. report.html and report.css)'
+		})
+		.options('l', {
+			alias: 'lang',
+			default: 'en',
+			describe: 'Language setting'
+		})
+		.options('h', {
+			alias: 'help',
+			describe: 'Show help'
+		})
+		.argv;
+if (argv.h) {
+	optimist.showHelp();
+}else{
+	cli(argv);
+}
