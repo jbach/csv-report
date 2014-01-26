@@ -47,6 +47,10 @@ var cli = require('../lib/cli'),
 			default: 'en',
 			describe: 'Language setting'
 		})
+		.options('v', {
+			alias: 'verbose',
+			describe: 'Output all logs'
+		})
 		.options('h', {
 			alias: 'help',
 			describe: 'Show help'
