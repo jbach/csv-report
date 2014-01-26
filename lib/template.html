@@ -3,33 +3,72 @@
 <head>
 	<meta charset="utf-8">
 	<title>Page Title</title>
+	<style type="text/css">
+	strong{
+		background:yellow;
+	}
+
+	body{
+		font-family: Calibri, 'Gill Sans', 'Arial', 'Trebuchet MS', sans-serif 
+	}
+
+	th,td{
+		text-align:left;
+	}
+
+	.center{
+		text-align:center;
+	}
+
+	table{
+		width: 100%;
+	}
+
+	.thead th{
+		background: #eee;
+	}
+
+	.tfoot td{
+		background: #EF9B2D;
+	}
+
+	.project,
+	.project table{
+		page-break-inside: avoid;
+	}
+
+	.project{
+		margin-bottom: 3em;
+	}
+	* {overflow: visible;}
+	</style>
 </head>
 <body>
-{{~it :days:index}}
-<div class="project">
-	<table>
-		<tr class="thead">
-			<th>Projekt</th>
-			<th class="center">Datum</th>
-			<th class="center">Stunden</th>
-			<th>Beschreibung</th>
-		</tr>
-		{{~days :entry:i}}
-		<tr>
-			<td>{{=entry.Project}}</td>
-			<td class="center">{{=entry.Date.calendar()}}</td>
-			<td class="center">{{=entry.Duration/3600}}</td>
-			<td>{{=entry.Task}}</td>
-		</tr>
-		{{~}}
-		<tr class="tfoot">
-			<td>Anzahl pro Job - Gesamt</td>
-			<td></td>
-			<td class="center">{{=days.reduce(function(previousValue, currentValue){return previousValue+currentValue.Duration},0)/3600}}</td>
-			<td></td>
-		</tr>
-	</table>
-</div>
-{{~}}
+{{#projects}}
+	<div class="project">
+		<table>
+			<tr class="thead">
+				<th>Projekt</th>
+				<th class="center">Datum</th>
+				<th class="center">Stunden</th>
+				<th>Beschreibung</th>
+			</tr>
+			{{#entries}}
+			<tr>
+				<td>{{project}}</td>
+				<td class="center">{{date}}</td>
+				<td class="center">{{duration}}</td>
+				<td>{{task}}</td>
+			</tr>
+			{{/entries}}
+			<tr class="tfoot">
+				<td>Anzahl pro Job - Gesamt</td>
+				<td></td>
+				<td class="center">{{total}}</td>
+				<td></td>
+			</tr>
+		</table>
+	</div>
+{{/projects}}
 </body>
 </html>
