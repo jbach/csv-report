@@ -63,7 +63,7 @@ var cli = require('../lib/cli'),
 if (argv.h) {
 	optimist.showHelp();
 }else if(argv.quiet){
-	cli.quiet(argv);
+	cli.quiet(argv).render();
 }else{
 	cli.interactive(argv);
 }

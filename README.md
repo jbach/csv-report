@@ -56,18 +56,19 @@ var report = new csvReport(options)
 #### `report.getProjects(callback)`
 Returns a list of project names that have data within the provided timeframe.
 
-- `callback`: arguments will be `callback(err, list)`
+- `callback` (function): arguments will be `callback(err, list)`
 
 #### `report.getEntries(project, callback)`
 Returns a list of task entries related to a specific project
 
-- `project`: Provide project name to get a projects tasks, or leave empty to get all.
-- `callback`: arguments will be `callback(err, entries)`
+- `project` (string): Provide project name to get a projects tasks, or leave empty to get all.
+- `callback` (function): arguments will be `callback(err, entries)`
 
-#### `report.render(callback)`
+#### `report.render(includeProjects, callback)`
 Starts the rendering process.
 
-- `callback`: arguments will be `callback(err, outputPath)`
+- `includeProjects` (array): Specify a list of project names that you want to include in the report. Default: Include all
+- `callback` (function): arguments will be `callback(err, outputPath)`
 
 ### Options
 Call the constructor with these `options`:
