@@ -77,49 +77,49 @@ Call the constructor with these `options`:
 #### `options.file`
 Path to input CSV file
 
-- <string>
+- String
 - **required**
 
 #### `options.out`
 Path to output PDF file
 
-- <string>
+- String
 - Default: `./report-<last-month>-<year>.pdf`
 
 #### `options.delim`
 Delimeter used in CSV file.
 
-- <string>
+- String
 - Default: `;`
 
 #### `options.start`
 Start date of timeframe
 
-- <string> format: `YYYY-MM-DD`
+- String, format: `YYYY-MM-DD`
 - Default: First day of previous month
 
 #### `options.end`
 End date of timeframe
 
-- <string> format: `YYYY-MM-DD`
+- String, format: `YYYY-MM-DD`
 - Default: Last day of previous month
 
 #### `options.round`
 Minutes to round up to. e.g. 21m -> 30m. Applied per day.
 
-- <int>
+- Number
 - Default: `15`
 
 #### `options.template`
 Path to [Handlebars](http://handlebarsjs.com/) template
 
-- <string>
+- String
 - Default: `./lib/template.html`
 
 #### `options.lang`
 Language. Currently used for output formatting of dates.
 
-- <string>
+- String
 - Default: `en`
 
 ### Events
