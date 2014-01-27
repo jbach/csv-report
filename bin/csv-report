@@ -49,10 +49,13 @@ var cli = require('../lib/cli'),
 		})
 		.options('v', {
 			alias: 'verbose',
+			boolean: true,
 			describe: 'Output all logs'
 		})
 		.options('q', {
 			alias: 'quiet',
+
+			boolean: true,
 			describe: 'Dont use interactive mode to start conversion'
 		})
 		.options('h', {
