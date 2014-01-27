@@ -14,8 +14,6 @@ Make sure [PhantomJS](https://github.com/ariya/phantomjs/) is installed. You may
 $ brew install phantomjs
 ```
 
-
-
 ## Running
 
 There are two ways to use csv-report: through the command line interface, or by requiring the csv-report module in your own code.
@@ -86,11 +84,49 @@ Path to output PDF file
 - String
 - Default: `./report-<last-month>-<year>.pdf`
 
+#### `options.mappings`
+Map the corresponding fields to CSV columns
+
+- Object
+- Default:
+
+```javascript
+{
+	date: 'Date',
+	project: 'Project',
+	task: 'Task',
+	duration: 'Duration',
+	start: 'Start',
+	end: 'End',
+	custom: {
+		comment: 'Comment'
+	}
+}
+```
+
 #### `options.delim`
 Delimeter used in CSV file.
 
 - String
 - Default: `;`
+
+#### `options.dateFormat`
+If you are using the `date` column, you can specify format(s) that will be used for parsing the dates in the CSV file
+
+- String | Array
+- Default: `['MM-DD-YYYY', 'YYYY-MM-DD']``
+
+#### `options.startFormat`
+If you are using the `start` column, you can specify format(s) that will be used for parsing the dateTimes in the CSV file
+
+- String | Array
+- Default: `['YYYY-MM-DD HH:mm:ss']`
+
+#### `options.endFormat`
+If you are using the `end` column, you can specify format(s) that will be used for parsing the dateTimes in the CSV file
+
+- String | Array
+- Default: `['YYYY-MM-DD HH:mm:ss']`
 
 #### `options.start`
 Start date of timeframe
@@ -115,6 +151,12 @@ Path to [Handlebars](http://handlebarsjs.com/) template
 
 - String
 - Default: `./lib/template.html`
+
+#### `options.paperSize`
+Define details for the papersize of output PDF. See [PhantomJS wiki](https://github.com/ariya/phantomjs/wiki/API-Reference-WebPage#wiki-webpage-paperSize) for details
+
+- Object
+- Default: `{ format: 'A4', orientation: 'landscape', border: '1.5cm' }`
 
 #### `options.lang`
 Language. Currently used for output formatting of dates.
