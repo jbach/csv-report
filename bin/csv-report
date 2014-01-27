@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 
 var cli = require('../lib/cli'),
-	path = require('path'),
 	optimist = require('optimist'),
-	moment = require('moment'),
+	defaultOptions = require('../lib/options').defaultOptions(),
 	argv = optimist
-		.usage('Usage: $0 --file <path> [--delim <string>] [--start <string>] [--end <string>] [--round <int>] [--template <path>] [--lang <string>] [--verbose] [--quiet]')
+		.usage('Usage: $0 --file <path> [--out <path>] [--delim <string>] [--start <string>] [--end <string>] [--round <int>] [--template <path>] [--lang <string>] [--verbose] [--quiet]')
 		.options('f', {
 			alias: 'file',
 			demand: true,
@@ -13,38 +12,37 @@ var cli = require('../lib/cli'),
 		})
 		.options('o', {
 			alias: 'out',
-			demand: true,
-			default: path.resolve(__dirname, '../report-' + moment().subtract('month', 1).format('MMM-YY') + '.pdf'),
+			default: defaultOptions.out,
 			describe: 'Output .pdf file'
 		})
 		.options('d', {
 			alias: 'delim',
-			default: ';',
+			default: defaultOptions.delim,
 			describe: 'The delimeter used in the .csv file'
 		})
 		.options('s', {
 			alias: 'start',
-			default: moment().subtract('month', 1).startOf('month').format('YYYY-MM-DD'),
+			default: defaultOptions.start.format('YYYY-MM-DD'),
 			describe: 'Start of report period'
 		})
 		.options('e', {
 			alias: 'end',
-			default: moment().subtract('month', 1).endOf('month').format('YYYY-MM-DD'),
+			default: defaultOptions.end.format('YYYY-MM-DD'),
 			describe: 'End of report period'
 		})
 		.options('r', {
 			alias: 'round',
-			default: 15,
+			default: defaultOptions.round,
 			describe: 'Minutes to round up to. e.g. 21m -> 30m'
 		})
 		.options('t', {
 			alias: 'template',
-			default: path.resolve(__dirname, '../lib/template.html'),
+			default: defaultOptions.template,
 			describe: 'Folder where to look for doT.js template'
 		})
 		.options('l', {
 			alias: 'lang',
-			default: 'en',
+			default: defaultOptions.lang,
 			describe: 'Language setting'
 		})
 		.options('v', {
@@ -54,7 +52,6 @@ var cli = require('../lib/cli'),
 		})
 		.options('q', {
 			alias: 'quiet',
-
 			boolean: true,
 			describe: 'Dont use interactive mode to start conversion'
 		})
