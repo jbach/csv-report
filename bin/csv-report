@@ -5,7 +5,7 @@ var cli = require('../lib/cli'),
 	optimist = require('optimist'),
 	moment = require('moment'),
 	argv = optimist
-		.usage('Usage: $0 --file <path> [--delim <string>] [--start <string>] [--end <string>] [--round <int>] [--template <path>] [--lang <string>]')
+		.usage('Usage: $0 --file <path> [--delim <string>] [--start <string>] [--end <string>] [--round <int>] [--template <path>] [--lang <string>] [--verbose] [--quiet]')
 		.options('f', {
 			alias: 'file',
 			demand: true,
@@ -14,7 +14,7 @@ var cli = require('../lib/cli'),
 		.options('o', {
 			alias: 'out',
 			demand: true,
-			default: path.resolve(__dirname, '../report.pdf'),
+			default: path.resolve(__dirname, '../report-' + moment().subtract('month', 1).format('MMM-YY') + '.pdf'),
 			describe: 'Output .pdf file'
 		})
 		.options('d', {
@@ -51,6 +51,10 @@ var cli = require('../lib/cli'),
 			alias: 'verbose',
 			describe: 'Output all logs'
 		})
+		.options('q', {
+			alias: 'quiet',
+			describe: 'Dont use interactive mode to start conversion'
+		})
 		.options('h', {
 			alias: 'help',
 			describe: 'Show help'
@@ -58,6 +62,8 @@ var cli = require('../lib/cli'),
 		.argv;
 if (argv.h) {
 	optimist.showHelp();
+}else if(argv.quiet){
+	cli.quiet(argv);
 }else{
-	cli(argv);
+	cli.interactive(argv);
 }
