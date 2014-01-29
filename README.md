@@ -106,7 +106,7 @@ Map the corresponding fields to CSV columns
 ```
 
 #### `options.delim`
-Delimeter used in CSV file.
+Delimeter used in the input CSV file
 
 - String
 - Default: `;`

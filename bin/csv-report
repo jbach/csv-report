@@ -8,42 +8,42 @@ var cli = require('../lib/cli'),
 		.options('f', {
 			alias: 'file',
 			demand: true,
-			describe: 'Input .csv file'
+			describe: 'Path to input CSV file'
 		})
 		.options('o', {
-			alias: 'out',
+			alias: 'Path to output PDF file',
 			default: defaultOptions.out,
 			describe: 'Output .pdf file'
 		})
 		.options('d', {
 			alias: 'delim',
 			default: defaultOptions.delim,
-			describe: 'The delimeter used in the .csv file'
+			describe: 'Delimeter used in input CSV file'
 		})
 		.options('s', {
 			alias: 'start',
 			default: defaultOptions.start.format('YYYY-MM-DD'),
-			describe: 'Start of report period'
+			describe: 'Start date of timeframe'
 		})
 		.options('e', {
 			alias: 'end',
 			default: defaultOptions.end.format('YYYY-MM-DD'),
-			describe: 'End of report period'
+			describe: 'End date of timeframe'
 		})
 		.options('r', {
 			alias: 'round',
 			default: defaultOptions.round,
-			describe: 'Minutes to round up to. e.g. 21m -> 30m'
+			describe: 'Minutes to round up to. e.g. 21m -> 30m. Applied per day'
 		})
 		.options('t', {
 			alias: 'template',
 			default: defaultOptions.template,
-			describe: 'Folder where to look for doT.js template'
+			describe: 'Path to Handlebars template'
 		})
 		.options('l', {
 			alias: 'lang',
 			default: defaultOptions.lang,
-			describe: 'Language setting'
+			describe: 'Language setting (Currently used for output formatting of dates)'
 		})
 		.options('v', {
 			alias: 'verbose',
@@ -53,7 +53,7 @@ var cli = require('../lib/cli'),
 		.options('q', {
 			alias: 'quiet',
 			boolean: true,
-			describe: 'Dont use interactive mode to start conversion'
+			describe: 'Dont use interactive mode'
 		})
 		.options('h', {
 			alias: 'help',
