@@ -4,32 +4,53 @@
 	<meta charset="utf-8">
 	<title>Page Title</title>
 	<style type="text/css">
+	body{
+		font-family: Calibri, 'Gill Sans', 'Helvetica', 'Arial', 'Trebuchet MS', sans-serif;
+		font-size: 87.5%;
+	}
+
+	h2{
+		margin:0 3px 3px;
+		font-size: 16px;
+		page-break-after: avoid;
+	}
+
 	strong{
 		background:yellow;
 	}
 
-	body{
-		font-family: Calibri, 'Gill Sans', 'Helvetica', 'Arial', 'Trebuchet MS', sans-serif;
-	}
-
 	th,td{
 		text-align:left;
+		padding: 2px 6px; 
 	}
 
-	.center{
-		text-align:center;
+	th:first-child,
+	td:first-child,
+	th:last-child,
+	td:last-child{
+		width: 15%;
+		text-align: center;
 	}
 
 	table{
 		width: 100%;
+		table-layout: fixed;
+		border: solid 1px #888;
+		border-radius: 3px;
 	}
 
 	.thead th{
-		background: #eee;
+		font-weight: bold;
+		border-bottom:1px dashed #aaa;
 	}
 
 	.tfoot td{
-		background: #EF9B2D;
+		font-weight: bold;
+		border-top: 3px double #ccc;
+	}
+
+	.tfoot td.total-label{
+		text-align: right;
 	}
 
 	.project,
@@ -45,27 +66,24 @@
 </head>
 <body>
 {{#projects}}
+	<h2>{{project}}</h2>
 	<div class="project">
 		<table>
 			<tr class="thead">
-				<th>Projekt</th>
-				<th class="center">Datum</th>
-				<th class="center">Stunden</th>
-				<th>Beschreibung</th>
+				<th>Date</th>
+				<th>Task(s)</th>
+				<th>Hours</th>
 			</tr>
 			{{#entries}}
 			<tr>
-				<td>{{project}}</td>
-				<td class="center">{{date}}</td>
-				<td class="center">{{hours duration}}</td>
+				<td>{{date}}</td>
 				<td>{{task}}</td>
+				<td>{{hours duration}}</td>
 			</tr>
 			{{/entries}}
 			<tr class="tfoot">
-				<td>Anzahl pro Job - Gesamt</td>
-				<td></td>
-				<td class="center">{{hours total}}</td>
-				<td></td>
+				<td colspan="2" class="total-label">Total</td>
+				<td class="total">{{hours total}}</td>
 			</tr>
 		</table>
 	</div>
