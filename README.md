@@ -105,6 +105,8 @@ Map the corresponding fields to CSV columns
 }
 ```
 
+The default mapping matches the CSV export of [TimeTracker 1.3](https://code.google.com/p/time-tracker-mac/).
+
 #### `options.delim`
 Delimeter used in the input CSV file
 
