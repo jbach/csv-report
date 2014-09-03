@@ -11,9 +11,9 @@ var cli = require('../lib/cli'),
 			describe: 'Path to input CSV file'
 		})
 		.options('o', {
-			alias: 'Path to output PDF file',
+			alias: 'out',
 			default: defaultOptions.out,
-			describe: 'Output .pdf file'
+			describe: 'Path to output PDF file'
 		})
 		.options('d', {
 			alias: 'delim',
