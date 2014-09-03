@@ -80,7 +80,7 @@ Path to input CSV file
 - **required**
 
 #### `options.out`
-Path to output PDF file
+Path to output PDF file (can be path to folder or .pdf file)
 
 - String
 - Default: `./report-<last-month>-<year>.pdf`
