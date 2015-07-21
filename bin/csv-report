@@ -1,67 +1,70 @@
 #!/usr/bin/env node
 
-var cli = require('../lib/cli'),
-	optimist = require('optimist'),
-	defaultOptions = require('../lib/options').defaultOptions(),
-	argv = optimist
-		.usage('Usage: $0 --file <path> [--out <path>] [--delim <string>] [--start <string>] [--end <string>] [--round <int>] [--template <path>] [--lang <string>] [--verbose] [--quiet]')
-		.options('f', {
-			alias: 'file',
-			demand: true,
-			describe: 'Path to input CSV file'
-		})
-		.options('o', {
-			alias: 'out',
-			default: defaultOptions.out,
-			describe: 'Path to output PDF file'
-		})
-		.options('d', {
-			alias: 'delim',
-			default: defaultOptions.delim,
-			describe: 'Delimeter used in input CSV file'
-		})
-		.options('s', {
-			alias: 'start',
-			default: defaultOptions.start.format('YYYY-MM-DD'),
-			describe: 'Start date of timeframe'
-		})
-		.options('e', {
-			alias: 'end',
-			default: defaultOptions.end.format('YYYY-MM-DD'),
-			describe: 'End date of timeframe'
-		})
-		.options('r', {
-			alias: 'round',
-			default: defaultOptions.round,
-			describe: 'Minutes to round up to. e.g. 21m -> 30m. Applied per day'
-		})
-		.options('t', {
-			alias: 'template',
-			default: defaultOptions.template,
-			describe: 'Path to Handlebars template'
-		})
-		.options('l', {
-			alias: 'lang',
-			default: defaultOptions.lang,
-			describe: 'Language setting (Currently used for output formatting of dates)'
-		})
-		.options('v', {
-			alias: 'verbose',
-			boolean: true,
-			describe: 'Output all logs'
-		})
-		.options('q', {
-			alias: 'quiet',
-			boolean: true,
-			describe: 'Dont use interactive mode'
-		})
-		.options('h', {
-			alias: 'help',
-			describe: 'Show help'
-		})
-		.argv;
+var cli = require('../lib/cli');
+var yargs = require('yargs');
+var defaultOptions = require('../lib/options').defaultOptions();
+var argv = yargs
+	.usage('Usage: $0 --file <path> [--out <path>] [--delim <string>] [--start <string>] [--end <string>] [--round <int>] [--template <path>] [--lang <string>] [--verbose] [--quiet]')
+	.version(function() {
+		return require('../package').version;
+	})
+	.options('f', {
+		alias: 'file',
+		demand: true,
+		describe: 'Path to input CSV file'
+	})
+	.options('o', {
+		alias: 'out',
+		default: defaultOptions.out,
+		describe: 'Path to output PDF file'
+	})
+	.options('d', {
+		alias: 'delim',
+		default: defaultOptions.delim,
+		describe: 'Delimeter used in input CSV file'
+	})
+	.options('s', {
+		alias: 'start',
+		default: defaultOptions.start.format('YYYY-MM-DD'),
+		describe: 'Start date of timeframe'
+	})
+	.options('e', {
+		alias: 'end',
+		default: defaultOptions.end.format('YYYY-MM-DD'),
+		describe: 'End date of timeframe'
+	})
+	.options('r', {
+		alias: 'round',
+		default: defaultOptions.round,
+		describe: 'Minutes to round up to. e.g. 21m -> 30m. Applied per day'
+	})
+	.options('t', {
+		alias: 'template',
+		default: defaultOptions.template,
+		describe: 'Path to Handlebars template'
+	})
+	.options('l', {
+		alias: 'lang',
+		default: defaultOptions.lang,
+		describe: 'Language setting (Currently used for output formatting of dates)'
+	})
+	.options('v', {
+		alias: 'verbose',
+		boolean: true,
+		describe: 'Output all logs'
+	})
+	.options('q', {
+		alias: 'quiet',
+		boolean: true,
+		describe: 'Dont use interactive mode'
+	})
+	.options('h', {
+		alias: 'help',
+		describe: 'Show help'
+	})
+	.argv;
 if (argv.h) {
-	optimist.showHelp();
+	yargs.showHelp();
 }else if(argv.quiet){
 	cli.quiet(argv).render();
 }else{
