@@ -8,12 +8,6 @@ Converts time tracking data from CSV to PDF.
 $ npm install csv-report --save
 ```
 
-Make sure [PhantomJS](https://github.com/ariya/phantomjs/) is installed. You may install it via Homebrew:
-
-```bash
-$ brew install phantomjs
-```
-
 ## Running
 
 There are two ways to use csv-report: through the command line interface, or by requiring the csv-report module in your own code.
