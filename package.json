@@ -1,7 +1,7 @@
 {
   "name": "csv-report",
   "description": "Converts time tracking data from CSV to PDF",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "author": "Jonas Bach <hallo@jonasbach.de>",
   "license": "MIT",
   "keywords": [
