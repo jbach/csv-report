@@ -1,14 +1,11 @@
 #!/usr/bin/env node
+const yargs = require('yargs');
+const cli = require('../lib/cli');
+const defaultOptions = require('../lib/options').defaults;
 
-var cli = require('../lib/cli');
-var yargs = require('yargs');
-var defaultOptions = require('../lib/options').defaultOptions();
-
-var argv = yargs
-	.usage('Usage: $0 --file <path> [--out <path>] [--delim <string>] [--start <string>] [--end <string>] [--round <int>] [--template <path>] [--lang <string>] [--verbose] [--quiet]')
-	.version(function() {
-		return require('../package').version;
-	})
+const argv = yargs
+	.usage('Usage: $0 --file <path> [--out <path>] [--delim <string>] [--start <string>] [--end <string>] [--round <int>] [--template <path>] [--lang <string>] [--verbose]')
+	.version(() => require('../package').version)
 	.options('f', {
 		alias: 'file',
 		demand: true,
@@ -60,8 +57,8 @@ var argv = yargs
 	})
 	.argv;
 
-if (argv.h) {
+if (argv.h){
 	yargs.showHelp();
 }else{
-	cli.interactive(argv);
+	cli(argv);
 }
