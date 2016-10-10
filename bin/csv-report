@@ -54,11 +54,6 @@ var argv = yargs
 		boolean: true,
 		describe: 'Output all logs'
 	})
-	.options('q', {
-		alias: 'quiet',
-		boolean: true,
-		describe: 'Dont use interactive mode'
-	})
 	.options('h', {
 		alias: 'help',
 		describe: 'Show help'
@@ -67,8 +62,6 @@ var argv = yargs
 
 if (argv.h) {
 	yargs.showHelp();
-}else if(argv.quiet){
-	cli.quiet(argv).render();
 }else{
 	cli.interactive(argv);
 }
