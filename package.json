@@ -24,7 +24,7 @@
     "handlebars": "^4.0.5",
     "html-pdf": "^2.1.0",
     "inquirer": "^1.2.1",
-    "lodash": "^3.10.0",
+    "lodash": "^4.16.4",
     "moment": "^2.15.1",
     "yargs": "^6.0.0"
   },
