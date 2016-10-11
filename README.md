@@ -5,7 +5,7 @@ Converts time tracking data from CSV to PDF.
 ## Installing
 
 ```bash
-$ npm install csv-report --save
+$ npm install csv-report -g
 ```
 
 ## Running
@@ -14,16 +14,8 @@ There are two ways to use csv-report: through the command line interface, or by 
 
 ### Running via CLI
 
-If installed locally:
-
 ```bash
-$ ./node_modules/.bin/csv-report -f /path/to/my/csvFile.csv -o /path/to/resulting/pdfFile.pdf [options]
-```
-
-If installed globally (`$ npm install csv-report -g`):
-
-```bash
-$ csv-report -f /path/to/my/csvFile.csv -o /path/to/resulting/pdfFile.pdf [options]
+$ csv-report -f /path/to/csvFile.csv -o /path/to/pdfFile.pdf [options]
 ```
 
 Check `$ csv-report -h` to see all available options.
@@ -31,38 +23,34 @@ Check `$ csv-report -h` to see all available options.
 ### Running via Node
 
 ```javascript
-var csvReport = require('csv-report');
+const csvReport = require('csv-report');
 
 // set options
-var options = {
+const options = {
 	file: '/path/to/my/csvFile.csv',
 	out: '/path/to/resulting/pdfFile.pdf'
 };
 
-// render 
-var report = new csvReport(options)
-.render(function(err, pdfPath){
-	console.log('PDF was written to ' + pdfPath);
-});
+// render
+const report = new csvReport(options)
+	.render()
+	.then(pdfPath => console.log('PDF was written to ' + pdfPath))
+	.catch(console.log.bind(console));
 ```
 ### Methods
 
-#### `report.getProjects(callback)`
+#### `report.getProjects() => Promise`
 Returns a list of project names that have data within the provided timeframe.
 
-- `callback` (function): arguments will be `callback(err, list)`
-
-#### `report.getEntries(project, callback)`
+#### `report.getEntries(project) => Promise`
 Returns a list of task entries related to a specific project
 
 - `project` (string): Provide project name to get a projects tasks, or leave empty to get all.
-- `callback` (function): arguments will be `callback(err, entries)`
 
-#### `report.render(includeProjects, callback)`
+#### `report.render(includeProjects) => Promise`
 Starts the rendering process.
 
-- `includeProjects` (array): Specify a list of project names that you want to include in the report. Default: Include all
-- `callback` (function): arguments will be `callback(err, outputPath)`
+- `includeProjects` (array): Specify a list of project names that you want to include in the report. __Default: Include all__
 
 ### Options
 Call the constructor with these `options`:
@@ -163,9 +151,7 @@ Language. Currently used for output formatting of dates.
 
 ### Events
 
-#### `report.on('log', function(logMsg){})`
-#### `report.on('error', function(errorMsg){})`
-#### `report.on('done', function(outputPath){})`
+#### `report.on('log', logMsg => {})`
 
 ## License
 
